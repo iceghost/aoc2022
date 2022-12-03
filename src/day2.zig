@@ -167,35 +167,29 @@ const Guide = struct {
     }
 };
 
+const TestFile = @import("test_utils.zig").TestFile;
+
 test "sample" {
     const allocator = std.testing.allocator;
 
-    const testcase =
+    var file = try TestFile.init(
         \\A Y
         \\B X
         \\C Z
         \\
-    ;
-
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
-
-    const file: std.fs.File = try tmp_dir.dir.createFile("sample.txt", .{ .read = true });
-    defer file.close();
-
-    try file.writeAll(testcase);
-    try file.seekTo(0);
+    );
+    defer file.deinit();
 
     {
-        const parser = Parser.init(file, .hand);
+        const parser = Parser.init(file.file, .hand);
         const guide = try parser.readGuideAllocator(allocator);
         defer guide.deinit();
         try std.testing.expectEqual(@as(u32, 15), guide.total_score);
     }
 
-    try file.seekTo(0);
+    try file.file.seekTo(0);
     {
-        const parser = Parser.init(file, .outcome);
+        const parser = Parser.init(file.file, .outcome);
         const guide = try parser.readGuideAllocator(allocator);
         defer guide.deinit();
         try std.testing.expectEqual(@as(u32, 12), guide.total_score);

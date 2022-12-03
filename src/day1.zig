@@ -131,10 +131,12 @@ const ElfList = struct {
     };
 };
 
+const TestFile = @import("test_utils.zig").TestFile;
+
 test "sample" {
     const allocator: std.mem.Allocator = std.testing.allocator;
 
-    const text =
+    var file = try TestFile.init(
         \\1000
         \\2000
         \\3000
@@ -150,18 +152,10 @@ test "sample" {
         \\
         \\10000
         \\
-    ;
+    );
+    defer file.deinit();
 
-    var tmp_dir = std.testing.tmpDir(.{});
-    defer tmp_dir.cleanup();
-
-    const file: std.fs.File = try tmp_dir.dir.createFile("sample.txt", .{ .read = true });
-    defer file.close();
-
-    try file.writeAll(text);
-    try file.seekTo(0);
-
-    var parser = Parser.init(allocator, file);
+    var parser = Parser.init(allocator, file.file);
     var elf_list = try parser.parse();
     defer elf_list.deinit();
 
