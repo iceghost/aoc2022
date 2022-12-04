@@ -167,12 +167,12 @@ const Guide = struct {
     }
 };
 
-const TestFile = @import("test_utils.zig").TestFile;
+const TmpFile = @import("utils.zig").TmpFile;
 
 test "sample" {
     const allocator = std.testing.allocator;
 
-    var file = try TestFile.init(
+    var file = try TmpFile.init(
         \\A Y
         \\B X
         \\C Z

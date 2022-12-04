@@ -45,8 +45,8 @@ fn checkAssignmentsOverlap(assignments: [2]Assignment) bool {
 }
 
 test "sample" {
-    const TestFile = @import("test_utils.zig").TestFile;
-    var file = try TestFile.init(
+    const TmpFile = @import("utils.zig").TmpFile;
+    var file = try TmpFile.init(
         \\2-4,6-8
         \\2-3,4-5
         \\5-7,7-9

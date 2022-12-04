@@ -131,12 +131,12 @@ const ElfList = struct {
     };
 };
 
-const TestFile = @import("test_utils.zig").TestFile;
+const TmpFile = @import("utils.zig").TmpFile;
 
 test "sample" {
     const allocator: std.mem.Allocator = std.testing.allocator;
 
-    var file = try TestFile.init(
+    var file = try TmpFile.init(
         \\1000
         \\2000
         \\3000
