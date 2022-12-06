@@ -7,12 +7,9 @@ fn marker(comptime size: comptime_int, buf: []const u8) ?usize {
         var bit_set = std.bit_set.IntegerBitSet('z' - 'a' + 1).initEmpty();
 
         // build an array of 0, 1, 2, ..., size - 1
-        const j_values = comptime blk: {
-            var initial: [size]u8 = undefined;
-            for (initial) |*value, index| {
-                value.* = index;
-            }
-            break :blk initial;
+        comptime var j_values: [size]u8 = undefined;
+        comptime for (j_values) |*value, index| {
+            value.* = @truncate(u8, index);
         };
 
         // check for duplicated element
