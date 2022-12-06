@@ -8,7 +8,8 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug test",
-            "program": "zig-out/bin/${fileBasenameNoExtension}-test",
+            "program": "${workspaceFolder}/zig-out/bin/${fileBasenameNoExtension}-test",
+            "cwd": "${workspaceFolder}",
             "args": [],
             "preLaunchTask": "Build test"
         }
