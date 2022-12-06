@@ -68,6 +68,7 @@ pub fn main() !void {
     const allocator: std.mem.Allocator = std.heap.page_allocator;
     const file = try std.fs.cwd().openFile("input/day6.txt", .{});
     const content = try file.readToEndAlloc(allocator, std.math.maxInt(usize));
+    defer allocator.free(content);
     std.debug.print("part 1: {d}\n", .{startOfPacket(content).?});
     std.debug.print("part 2: {d}\n", .{startOfMessage(content).?});
 }
