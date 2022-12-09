@@ -4,7 +4,7 @@
         {
             "type": "shell",
             "label": "Build test",
-            "command": "zig test -fstage1 -femit-bin=zig-out/bin/${fileBasenameNoExtension}-test --test-no-exec ${file}"
+            "command": "zig test -femit-bin=zig-out/bin/${fileBasenameNoExtension}-test --test-no-exec ${file}"
         },
     ]
 }
