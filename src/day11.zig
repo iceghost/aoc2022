@@ -7,7 +7,7 @@ const Part = enum {
 };
 
 const Parser = struct {
-    fn parse(allocator: Allocator, input: []const u8, comptime part: Part) !MonkeyList(part) {
+    fn parse(allocator: Allocator, input: []const u8, comptime part: Part) !Simulation(part) {
         const len = std.mem.count(u8, input, "\n\n") + 1;
         const monkey_list = try allocator.alloc(Monkey, len);
 
@@ -133,12 +133,11 @@ const Monkey = struct {
     false_branch: usize,
 };
 
-fn MonkeyList(comptime part: Part) type {
+fn Simulation(comptime part: Part) type {
     return struct {
         const Self = @This();
 
         monkey_list: []Monkey,
-        round: usize = 0,
 
         inspect_counts: []u64,
 
@@ -152,7 +151,6 @@ fn MonkeyList(comptime part: Part) type {
             for (self.monkey_list) |_, i| {
                 try self.roundMonkey(i);
             }
-            self.round += 1;
         }
 
         fn roundMonkey(self: Self, i: usize) !void {
@@ -175,22 +173,14 @@ fn MonkeyList(comptime part: Part) type {
     };
 }
 
-fn part1(allocator: Allocator, input: []const u8) !u64 {
-    var monkey_list = try Parser.parse(allocator, input, Part.one);
-    while (monkey_list.round != 20) {
-        try monkey_list.roundMonkeyList();
+fn exec(allocator: Allocator, input: []const u8, comptime part: Part) !u64 {
+    var simulation = try Parser.parse(allocator, input, part);
+    var round: u64 = 0;
+    while (round != if (part == .one) 20 else 10_000) : (round += 1) {
+        try simulation.roundMonkeyList();
     }
-    std.sort.sort(u64, monkey_list.inspect_counts, {}, comptime std.sort.desc(u64));
-    return monkey_list.inspect_counts[0] * monkey_list.inspect_counts[1];
-}
-
-fn part2(allocator: Allocator, input: []const u8) !u64 {
-    var monkey_list = try Parser.parse(allocator, input, Part.two);
-    while (monkey_list.round != 10000) {
-        try monkey_list.roundMonkeyList();
-    }
-    std.sort.sort(u64, monkey_list.inspect_counts, {}, comptime std.sort.desc(u64));
-    return monkey_list.inspect_counts[0] * monkey_list.inspect_counts[1];
+    std.sort.sort(u64, simulation.inspect_counts, {}, comptime std.sort.desc(u64));
+    return simulation.inspect_counts[0] * simulation.inspect_counts[1];
 }
 
 test "single monkey" {
@@ -256,8 +246,8 @@ test "sample" {
         \\    If false: throw to monkey 1
         \\
     ;
-    try std.testing.expectEqual(@as(u64, 10605), try part1(allocator, testcase));
-    try std.testing.expectEqual(@as(u64, 2713310158), try part2(allocator, testcase));
+    try std.testing.expectEqual(@as(u64, 10605), try exec(allocator, testcase, Part.one));
+    try std.testing.expectEqual(@as(u64, 2713310158), try exec(allocator, testcase, Part.two));
 }
 
 pub fn main() !void {
@@ -269,6 +259,6 @@ pub fn main() !void {
     defer file.close();
 
     const content = try file.readToEndAlloc(allocator, std.math.maxInt(usize));
-    std.debug.print("part 1: {}\n", .{try part1(allocator, content)});
-    std.debug.print("part 2: {}\n", .{try part2(allocator, content)});
+    std.debug.print("part 1: {}\n", .{try exec(allocator, content, Part.one)});
+    std.debug.print("part 2: {}\n", .{try exec(allocator, content, Part.two)});
 }
